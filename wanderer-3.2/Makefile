@@ -6,10 +6,10 @@
 
 OBJ = monsters.o m.o save.o jump.o display.o icon.o game.o read.o help.o fall.o scores.o edit.o encrypt.o
 
-#CFLAGS = -O -s
+CFLAGS = -O -s
 #CFLAGS = -g
-LIBS = -lcurses
-#CC = cc
+LIBS = -lncurses 
+CC = cc
 
 all:	wanderer
 	@echo DONE
@@ -23,11 +23,26 @@ convert: convert.c wand_head.h
 $(OBJ): wand_head.h
 
 install: 
-	install -m 0755 -d -o root -g games ${DESTDIR}/usr/local/share/wanderer
-	install -m 0755 -d -o root -g games ${DESTDIR}/usr/local/share/wanderer/screens
-	install -m 0644 -o root -g games ./screens/* ${DESTDIR}/usr/local/share/wanderer/screens/
-	install -m 2755 -o root -g games ./wanderer ${DESTDIR}/usr/local/bin/
-	install -m 0644 -o root -g games wanderer.6 ${DESTDIR}/usr/local/man/man6/
+	mkdir /usr/local/share/wanderer
+	mkdir /usr/local/share/wanderer/screens
+	cp screens/* /usr/local/share/wanderer/screens
+	touch /usr/local/share/wanderer/hiscore
+	chown root.games /usr/local/share/wanderer/hiscore
+	chmod g+w /usr/local/share/wanderer/hiscore
+	cp wanderer /usr/local/bin/wanderer
+	chown root:games /usr/local/bin/wanderer
+	chmod +x /usr/local/bin/wanderer
+	chmod g+s /usr/local/bin/wanderer
+	cp wanderer.6 /usr/share/man/man6
+	groupadd games
+
+uninstall: 
+	rm -rf /usr/local/share/wanderer
+	rm -rf /usr/local/share/wanderer/screens
+	rm /usr/local/share/wanderer/hiscore
+	rm -rf /usr/local/bin/wanderer
+	rm /usr/share/man/man6/wanderer.6 
+	groupdel games
 
 clean:
 	rm *.o
@@ -37,7 +52,7 @@ distclean:
 	rm wanderer
 	rm convert
 
-#uninstall:
-#	rm /usr/games/wanderer
-#	rm -rf /usr/games/wandscreens
-#	rm /var/games/wandererscores
+uninstall:
+	rm /usr/local/bin/wanderer
+	rm -rf /usr/local/share/wanderer/
+	rm -f /usr/share/man/man6/wanderer.6
